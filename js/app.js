@@ -66,54 +66,44 @@ const shoppingItems = [
 
 // function that sets items for three main divs
 const selectPreferredItem = () => {
+  // select dom elements
   const leftItemImg = document.querySelector("#left-img");
   const middleItemImg = document.querySelector("#middle-img");
   const rightItemImg = document.querySelector("#right-img");
   const leftItemName = document.querySelector("#left-name");
   const middleItemName = document.querySelector("#middle-name");
   const rightItemName = document.querySelector("#right-name");
-  // let [leftIndex, middleIndex, rightIndex] = [
-  //   randomize(shoppingItems),
-  //   randomize(shoppingItems),
-  //   randomize(shoppingItems),
-  // ];
+
+  // get random number that'll be used to get random ShoppingItem
   let leftIndex = randomize(shoppingItems);
   let middleIndex = randomize(shoppingItems);
   let rightIndex = randomize(shoppingItems);
 
-  console.log(leftIndex);
-  console.log(middleIndex);
-  console.log(rightIndex);
-
+  // ensure none of the indicies are the same numbers
   while (
     leftIndex === middleIndex ||
     leftIndex === rightIndex ||
     middleIndex === rightIndex
   ) {
-    // [leftIndex, middleIndex, rightIndex] = [
-    //   randomize(shoppingItems),
-    //   randomize(shoppingItems),
-    //   randomize(shoppingItems),
-    // ];
     leftIndex = randomize(shoppingItems);
     middleIndex = randomize(shoppingItems);
     rightIndex = randomize(shoppingItems);
   }
 
+  // use random indicies to get random shopping item
   leftShoppingItem = shoppingItems[leftIndex];
   middleShoppingItem = shoppingItems[middleIndex];
   rightShoppingItem = shoppingItems[rightIndex];
 
+  // setting names in dom
   leftItemName.textContent = leftShoppingItem.name;
   middleItemName.textContent = middleShoppingItem.name;
   rightItemName.textContent = rightShoppingItem.name;
 
+  // setting src of imgs in dom
   leftItemImg.src = leftShoppingItem.imgSrc;
   middleItemImg.src = middleShoppingItem.imgSrc;
   rightItemImg.src = rightShoppingItem.imgSrc;
-  // console.log(leftIndex);
-  // console.log(middleIndex);
-  // console.log(rightIndex);
 };
 
 // function that handles clicks on item images
@@ -133,17 +123,21 @@ const handlePreferredClicks = (e) => {
 
     const idOptions = ["left-img", "middle-img", "right-img"];
 
+    // if shopping item image is clicked
     if (idOptions.includes(itemId)) {
+      // if left item was clicked
       if (idOptions.indexOf(itemId) === 0) {
         leftShoppingItem.clicks++;
         console.log(
           `Left item ${leftShoppingItem.name} has ${leftShoppingItem.clicks} clicks so far`
         );
+        // if middle item was clicked
       } else if (idOptions.indexOf(itemId) === 1) {
         middleShoppingItem.clicks++;
         console.log(
           `Middle item ${middleShoppingItem.name} has ${middleShoppingItem.clicks} clicks so far`
         );
+        // if right item was clicked
       } else {
         rightShoppingItem.clicks++;
         console.log(
