@@ -1,0 +1,12 @@
+img {
+  max-width: 300px;
+  max-height: 300px;
+}
+.choices {
+  width: 75%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr;
+  grid-column-gap: 20px;
+  grid-row-gap: 0px;
+}
