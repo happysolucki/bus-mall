@@ -4,6 +4,61 @@ const aside = document.querySelector("aside");
 // const finalTally = document.querySelector("#final-tally");
 const resultsButton = document.createElement("button");
 resultsButton.textContent = "View Results";
+const ctx = document.querySelector("#chart-results").getContext("2d");
+// const resultsChart = new Chart(ctx, {
+//   type: "bar",
+//   data: {
+//     labels: [],
+//     datasets: [
+//       {
+//         label: "# of votes",
+//         data: [],
+//         fillColor: "#48a497",
+//         strokeColor: "#48a4d1",
+//       },
+//       {
+//         label: "times shown",
+//         data: [],
+//         fillColor: "rgba(73,188,170,0.4)",
+//         strokeColor: "rgba(72,174,209,0.4)",
+//       },
+//     ],
+//   },
+// });
+
+const barData = {
+  type: "bar",
+  data: {
+    labels: [],
+    datasets: [
+      {
+        label: "# of votes",
+        data: [],
+        backgroundColor: "#48a497",
+        borderColor: "#48a4d1",
+      },
+      {
+        label: "times shown",
+        data: [],
+        backgroundColor: "rgba(73,188,170,0.4)",
+        borderColor: "rgba(72,174,209,0.4)",
+      },
+    ],
+  },
+  options: {
+    responsive: false,
+    scales: {
+      y: [
+        {
+          ticks: {
+            beginAtZero: true,
+            stepSize: 1,
+          },
+        },
+      ],
+    },
+  },
+};
 const maxClicks = 10;
 let totalClicks = 0;
 let leftShoppingItem = null;
@@ -32,10 +87,14 @@ const listResults = () => {
       "votes"
     )} , and was seen ${determinePlural(item.timesShown, "times")}.`;
     list.append(score);
+    barData.data.labels.push(item.name);
+    barData.data.datasets[0].data.push(item.clicks);
+    barData.data.datasets[1].data.push(item.timesShown);
   }
   aside.append(header);
   aside.append(list);
   resultsButton.removeEventListener("click", listResults);
+  const resultsChart = new Chart(ctx, barData);
 };
 
 // Main class
