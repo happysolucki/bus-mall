@@ -37,6 +37,15 @@ const barData = {
         suggestedMax: maxClicks,
       },
     },
+    plugins: {
+      legend: {
+        labels: {
+          font: {
+            family: "ABeeZee",
+          },
+        },
+      },
+    },
   },
 };
 
@@ -120,8 +129,6 @@ const selectPreferredItem = () => {
   let rightLeft = rightIndex === leftIndex;
   let middleRight = middleIndex === rightIndex;
 
-  console.log(leftMiddle, rightLeft, middleRight);
-
   while (leftMiddle || rightLeft || middleRight) {
     if (leftMiddle) {
       leftIndex = randomize(shoppingItems);
@@ -170,26 +177,36 @@ const handlePreferredClicks = (e) => {
 
     // if shopping item image is clicked
     if (idOptions.includes(itemId)) {
-      // if left item was clicked
+      // increment times shown for shopping items
       leftShoppingItem.timesShown++;
       middleShoppingItem.timesShown++;
       rightShoppingItem.timesShown++;
+      // if left item was clicked
       if (idOptions.indexOf(itemId) === 0) {
         leftShoppingItem.clicks++;
         console.log(
-          `Left item ${leftShoppingItem.name} has ${leftShoppingItem.clicks} clicks so far`
+          `Left item ${leftShoppingItem.name} has ${determinePlural(
+            leftShoppingItem.clicks,
+            "clicks"
+          )} so far`
         );
         // if middle item was clicked
       } else if (idOptions.indexOf(itemId) === 1) {
         middleShoppingItem.clicks++;
         console.log(
-          `Middle item ${middleShoppingItem.name} has ${middleShoppingItem.clicks} clicks so far`
+          `Middle item ${middleShoppingItem.name} has ${determinePlural(
+            middleShoppingItem.clicks,
+            "clicks"
+          )} so far`
         );
         // if right item was clicked
       } else {
         rightShoppingItem.clicks++;
         console.log(
-          `Right item ${rightShoppingItem.name} has ${rightShoppingItem.clicks} clicks so far`
+          `Right item ${rightShoppingItem.name} has ${determinePlural(
+            rightShoppingItem.clicks,
+            "clicks"
+          )} so far`
         );
       }
       totalClicks++;
@@ -197,11 +214,17 @@ const handlePreferredClicks = (e) => {
         `Left item ${leftShoppingItem.name} has been shown ${determinePlural(
           leftShoppingItem.timesShown,
           "times"
-        )}.\nMiddle item ${middleShoppingItem.name} has been shown ${
-          middleShoppingItem.timesShown
-        } times.\nRight item ${rightShoppingItem.name} has been shown ${
-          rightShoppingItem.timesShown
-        } times.`
+        )}.\nMiddle item ${
+          middleShoppingItem.name
+        } has been shown ${determinePlural(
+          middleShoppingItem.timesShown,
+          "times"
+        )} times.\nRight item ${
+          rightShoppingItem.name
+        } has been shown ${determinePlural(
+          rightShoppingItem.timesShown,
+          "times"
+        )} times.`
       );
       if (totalClicks !== maxClicks) selectPreferredItem();
     }
