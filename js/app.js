@@ -1,15 +1,18 @@
-// Global variables
+// setup variables
 const choiceContainer = document.querySelector("#choices");
 const aside = document.querySelector("aside");
 const resultsButton = document.createElement("button");
 resultsButton.textContent = "View Results";
-const ctx = document.querySelector("#chart-results").getContext("2d");
+const wipeButton = document.createElement("button");
+wipeButton.textContent = "Wipe Previous Data";
+const ctx = document.querySelector("#round-results").getContext("2d");
 const maxClicks = 10;
 let totalClicks = 0;
 let leftShoppingItem = null;
 let middleShoppingItem = null;
 let rightShoppingItem = null;
 
+// template for bar chart
 const barData = {
   type: "bar",
   data: {
@@ -31,12 +34,12 @@ const barData = {
   },
   options: {
     responsive: false,
-    scales: {
-      y: {
-        suggestedMin: 0,
-        suggestedMax: maxClicks,
-      },
-    },
+    // scales: {
+    //   y: {
+    //     suggestedMin: 0,
+    //     suggestedMax: maxClicks,
+    //   },
+    // },
     plugins: {
       legend: {
         labels: {
@@ -50,37 +53,38 @@ const barData = {
 };
 
 // Helper functions
+
+// returns random number based on length of array given as an argument
 const randomize = (arr) => {
   return Math.floor(Math.random() * arr.length);
 };
 
+// takes number and plural word as arguments. if number is 1, return string literal with number and word with last character cut off (basically cuts off 's' from word if number is 1). else, return string literal with number and word
 const determinePlural = (num, string) => {
   if (num === 1) return `${num} ${string.slice(0, -1)}`;
   return `${num} ${string}`;
 };
 
+// lists results in a bar chart
 const listResults = () => {
+  //
+  updateLocalStorage();
   const header = document.createElement("h3");
   header.textContent = "Final Results";
-  // const list = document.createElement("ol");
   for (const item of shoppingItems) {
-    // let score = document.createElement("li");
-    // // score.textContent = `${item.name} had ${item.clicks} votes, and was seen ${item.timesShown} times.`;
-    // score.textContent = `${item.name} had ${determinePlural(
-    //   item.clicks,
-    //   "votes"
-    // )} , and was seen ${determinePlural(item.timesShown, "times")}.`;
-    // list.append(score);
     barData.data.labels.push(item.name);
     barData.data.datasets[0].data.push(item.clicks);
     barData.data.datasets[1].data.push(item.timesShown);
   }
-  // barData.data.datasets[0].data.push(maxClicks);
-  // barData.data.datasets[1].data.push(maxClicks);
   aside.append(header);
-  // aside.append(list);
   resultsButton.removeEventListener("click", listResults);
-  const resultsChart = new Chart(ctx, barData);
+  const roundChart = new Chart(ctx, barData);
+  document.body.append(wipeButton);
+  wipeButton.addEventListener("click", (e) => {
+    localStorage.clear();
+    window.location.reload();
+  });
+  // const totalsChart = new Chart(ctx2, barData);
 };
 
 // Main class
@@ -94,7 +98,7 @@ class ShoppingItem {
 }
 
 // Main array
-const shoppingItems = [
+let shoppingItems = [
   new ShoppingItem("bag", "./assets/imgs/bag.jpg"),
   new ShoppingItem("banana", "./assets/imgs/banana.jpg"),
   new ShoppingItem("bathroom", "./assets/imgs/bathroom.jpg"),
@@ -109,6 +113,11 @@ const shoppingItems = [
   new ShoppingItem("pet-sweep", "./assets/imgs/pet-sweep.jpg"),
 ];
 
+// variables that'll be used to make sure immediate previous indicies aren't repeated
+let previousLeft = 0;
+let previousMiddle = 0;
+let previousRight = 0;
+
 // function that sets items for three main divs
 const selectPreferredItem = () => {
   // select dom elements
@@ -118,6 +127,8 @@ const selectPreferredItem = () => {
   const leftItemName = document.querySelector("#left-name");
   const middleItemName = document.querySelector("#middle-name");
   const rightItemName = document.querySelector("#right-name");
+
+  let previousRound = [previousLeft, previousMiddle, previousRight];
 
   // get random number that'll be used to get random ShoppingItem
   let leftIndex = randomize(shoppingItems);
@@ -129,18 +140,47 @@ const selectPreferredItem = () => {
   let rightLeft = rightIndex === leftIndex;
   let middleRight = middleIndex === rightIndex;
 
-  while (leftMiddle || rightLeft || middleRight) {
-    if (leftMiddle) {
-      leftIndex = randomize(shoppingItems);
-    } else if (rightLeft) {
-      rightIndex = randomize(shoppingItems);
-    } else if (middleRight) {
-      middleIndex = randomize(shoppingItems);
+  // for first round, only prevent duplicates of current indicies
+  if (totalClicks < 1) {
+    while (leftMiddle || rightLeft || middleRight) {
+      if (leftMiddle) {
+        leftIndex = randomize(shoppingItems);
+      } else if (rightLeft) {
+        rightIndex = randomize(shoppingItems);
+      } else if (middleRight) {
+        middleIndex = randomize(shoppingItems);
+      }
+      leftMiddle = leftIndex === middleIndex;
+      rightLeft = rightIndex === leftIndex;
+      middleRight = middleIndex === rightIndex;
     }
-    leftMiddle = leftIndex === middleIndex;
-    rightLeft = rightIndex === leftIndex;
-    middleRight = middleIndex === rightIndex;
+    // for subsequent rounds, prevent duplicates of current indicies and previous round's indicies
+  } else {
+    while (
+      leftMiddle ||
+      rightLeft ||
+      middleRight ||
+      previousRound.indexOf(leftIndex) > -1 ||
+      previousRound.indexOf(middleIndex) > -1 ||
+      previousRound.indexOf(rightIndex) > -1
+    ) {
+      if (leftMiddle || previousRound.indexOf(leftIndex) > -1)
+        leftIndex = randomize(shoppingItems);
+      else if (rightLeft || previousRound.indexOf(rightIndex) > -1)
+        rightIndex = randomize(shoppingItems);
+      else if (middleRight || previousRound.indexOf(middleIndex) > -1)
+        middleIndex = randomize(shoppingItems);
+
+      leftMiddle = leftIndex === middleIndex;
+      rightLeft = rightIndex === leftIndex;
+      middleRight = middleIndex === rightIndex;
+    }
   }
+
+  // reassign previous indicies for next round
+  previousLeft = leftIndex;
+  previousMiddle = middleIndex;
+  previousRight = rightIndex;
 
   // use random indicies to get random shopping item
   leftShoppingItem = shoppingItems[leftIndex];
@@ -164,14 +204,6 @@ const handlePreferredClicks = (e) => {
 
   if (totalClicks < maxClicks) {
     const itemId = e.target.id;
-
-    // leftShoppingItem.timesShown++;
-    // middleShoppingItem.timesShown++;
-    // rightShoppingItem.timesShown++;
-
-    // console.log(
-    //   `Left item ${leftShoppingItem.name} has been shown ${leftShoppingItem.timesShown} times.\nMiddle item ${middleShoppingItem.name} has been shown ${middleShoppingItem.timesShown} times.\nRight item ${rightShoppingItem.name} has been shown ${rightShoppingItem.timesShown} times.`
-    // );
 
     const idOptions = ["left-img", "middle-img", "right-img"];
 
@@ -209,6 +241,7 @@ const handlePreferredClicks = (e) => {
           )} so far`
         );
       }
+      // increment total clicks
       totalClicks++;
       console.log(
         `Left item ${leftShoppingItem.name} has been shown ${determinePlural(
@@ -230,7 +263,6 @@ const handlePreferredClicks = (e) => {
     }
   }
 
-  // totalClicks++;
   if (totalClicks === maxClicks) {
     choiceContainer.removeEventListener("click", handlePreferredClicks);
     console.log(`You picked ${maxClicks} items, thanks!`);
@@ -242,5 +274,22 @@ const handlePreferredClicks = (e) => {
   }
 };
 
+const updateLocalStorage = () => {
+  console.log("updating local storage");
+  const itemArr = JSON.stringify(shoppingItems);
+  localStorage.setItem("storedData", itemArr);
+};
+
+const getLocalStorage = () => {
+  console.log("get data from local storage");
+  const oldData = localStorage.getItem("storedData");
+  const oldItemData = JSON.parse(oldData);
+  if (oldItemData !== null) {
+    shoppingItems = oldItemData;
+  }
+  // listResults();
+};
+
+getLocalStorage();
 choiceContainer.addEventListener("click", handlePreferredClicks);
 selectPreferredItem();
