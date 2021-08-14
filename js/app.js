@@ -21,28 +21,41 @@ const barData = {
       {
         label: "# of votes",
         data: [],
-        backgroundColor: "#48a497",
+        backgroundColor: "#F2293A",
         borderColor: "#48a4d1",
+        color: "#f2f2f2",
       },
       {
         label: "times shown",
         data: [],
-        backgroundColor: "rgba(73,188,170,0.4)",
+        backgroundColor: "#F29F05",
         borderColor: "rgba(72,174,209,0.4)",
+        color: "#f2f2f2",
       },
     ],
   },
   options: {
     responsive: false,
-    // scales: {
-    //   y: {
-    //     suggestedMin: 0,
-    //     suggestedMax: maxClicks,
-    //   },
-    // },
+    scales: {
+      y: {
+        ticks: {
+          color: "#f2f2f2",
+        },
+        // suggestedMin: 0,
+        // suggestedMax: maxClicks,
+      },
+      x: {
+        ticks: {
+          color: "#f2f2f2",
+        },
+        // suggestedMin: 0,
+        // suggestedMax: maxClicks,
+      },
+    },
     plugins: {
       legend: {
         labels: {
+          color: "#f2f2f2",
           font: {
             family: "ABeeZee",
           },
